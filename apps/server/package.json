@@ -1,0 +1,23 @@
+{
+  "name": "@clichat/server",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "socket.io": "^4.7.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@clichat/tsconfig": "workspace:*",
+    "@clichat/types": "workspace:*",
+    "@types/node": "^20.12.7",
+    "@types/uuid": "^9.0.8",
+    "tsx": "^4.9.3",
+    "typescript": "^5.4.5"
+  }
+}
