@@ -1,0 +1,4 @@
+{
+  "extends": "@clichat/tsconfig/base.json",
+  "include": ["src"]
+}

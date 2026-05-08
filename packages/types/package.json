@@ -1,0 +1,10 @@
+{
+  "name": "@clichat/types",
+  "version": "0.0.1",
+  "private": true,
+  "exports": { ".": "./src/index.ts" },
+  "devDependencies": {
+    "@clichat/tsconfig": "workspace:*",
+    "typescript": "^5.4.5"
+  }
+}
