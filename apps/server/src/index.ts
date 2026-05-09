@@ -1,6 +1,7 @@
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { randomUUID } from "crypto";
+import { USERNAME_MAX_LENGTH } from "@clichat/types";
 import type { ChatMessage, Room, User, ServerToClientEvents, ClientToServerEvents } from "@clichat/types";
 
 const PORT = parseInt(process.env["PORT"] ?? "3001", 10);
@@ -20,6 +21,7 @@ interface InternalRoom {
 
 const rooms = new Map<string, InternalRoom>();
 const users = new Map<string, User>();
+let colorCounter = 0;
 
 function createDefaultRooms(): void {
   for (const name of ["general", "random", "tech"]) {
@@ -71,7 +73,7 @@ io.on("connection", (socket) => {
       return;
     }
 
-    const trimmed = username.trim().slice(0, 20);
+    const trimmed = username.trim().slice(0, USERNAME_MAX_LENGTH);
     if (!trimmed) {
       socket.emit("error", "Username cannot be empty");
       return;
@@ -80,7 +82,7 @@ io.on("connection", (socket) => {
     currentUser = {
       id: socket.id,
       username: trimmed,
-      color: getColorForIndex(users.size),
+      color: getColorForIndex(colorCounter++),
       isOnline: true,
     };
 

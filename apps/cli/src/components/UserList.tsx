@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Text } from "ink";
 import chalk from "chalk";
 import type { User } from "@clichat/types";
+import { USERNAME_DISPLAY_WIDTH } from "@clichat/types";
 
 interface UserListProps {
   users: User[];
@@ -23,9 +24,8 @@ export function UserList({ users, currentUserId }: UserListProps): React.ReactEl
       )}
       {users.map((user) => {
         const isCurrentUser = user.id === currentUserId;
-        const coloredName = chalk.hex(user.color)(
-          user.username.slice(0, 13) + (isCurrentUser ? " (you)" : "")
-        );
+        const label = user.username.slice(0, USERNAME_DISPLAY_WIDTH) + (isCurrentUser ? " (you)" : "");
+        const coloredName = chalk.hex(user.color)(label);
         return (
           <Box key={user.id} flexDirection="row" alignItems="center">
             <Text color="green">● </Text>

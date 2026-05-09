@@ -63,7 +63,7 @@ export function useSocket(username: string): UseSocketReturn {
 
     socket.on("user:joined", (user) => {
       setUsers((prev) => {
-        if (prev.find((u) => u.id === user.id)) return prev;
+        if (prev.some((u) => u.id === user.id)) return prev;
         return [...prev, user];
       });
     });

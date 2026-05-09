@@ -1,3 +1,6 @@
+export const USERNAME_MAX_LENGTH = 20;
+export const USERNAME_DISPLAY_WIDTH = 12;
+
 export interface ChatMessage {
   id: string;
   roomId: string;

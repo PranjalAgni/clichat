@@ -20,6 +20,7 @@ interface ChatLayoutProps {
 
 const MIN_WIDTH = 80;
 const MIN_HEIGHT = 20;
+const SIDEBAR_WIDTH = 20;
 
 export function ChatLayout({
   messages,
@@ -38,9 +39,7 @@ export function ChatLayout({
   if (termWidth < MIN_WIDTH || termHeight < MIN_HEIGHT) {
     return (
       <Box flexDirection="column" alignItems="center" justifyContent="center">
-        <Text color="yellow" bold>
-          Terminal too small!
-        </Text>
+        <Text color="yellow" bold>Terminal too small!</Text>
         <Text color="gray">
           Minimum size: {MIN_WIDTH}×{MIN_HEIGHT} (current: {termWidth}×{termHeight})
         </Text>
@@ -51,23 +50,19 @@ export function ChatLayout({
 
   return (
     <Box flexDirection="column" width={termWidth} height={termHeight - 1}>
-      {/* Status bar at top */}
       <StatusBar
         connected={connected}
         currentRoom={currentRoom}
         userCount={users.length}
       />
 
-      {/* Main content row */}
       <Box flexDirection="row" flexGrow={1}>
-        {/* Left sidebar */}
         <Box
           flexDirection="column"
-          width={20}
+          width={SIDEBAR_WIDTH}
           borderStyle="round"
           borderColor="gray"
           paddingX={1}
-          paddingY={0}
           flexShrink={0}
         >
           <RoomList
@@ -76,33 +71,26 @@ export function ChatLayout({
             onSelect={onJoinRoom}
           />
           <Box height={1} />
-          <Box borderStyle="single" borderColor="gray" marginY={0} />
+          <Box borderStyle="single" borderColor="gray" />
           <Box height={1} />
           <UserList users={users} currentUserId={currentUserId} />
         </Box>
 
-        {/* Chat pane */}
         <Box
           flexDirection="column"
           flexGrow={1}
           borderStyle="round"
           borderColor="cyan"
-          paddingX={0}
-          paddingY={0}
         >
-          {/* Room header */}
-          <Box paddingX={2} paddingY={0} borderStyle="single" borderColor="gray">
+          <Box paddingX={2} borderStyle="single" borderColor="gray">
             <Text bold color="cyan">
               {currentRoom ? currentRoom.name : "No room selected"}
             </Text>
             {currentRoom && (
-              <Text color="gray" dimColor>
-                {" "}· {messages.length} messages
-              </Text>
+              <Text color="gray" dimColor> · {messages.length} messages</Text>
             )}
           </Box>
 
-          {/* Messages */}
           <Box flexGrow={1} flexDirection="column" overflow="hidden">
             {currentRoom ? (
               <MessageList messages={messages} users={users} />
@@ -115,7 +103,6 @@ export function ChatLayout({
             )}
           </Box>
 
-          {/* Input */}
           <InputBox
             onSend={onSendMessage}
             onJoinRoom={onJoinRoom}

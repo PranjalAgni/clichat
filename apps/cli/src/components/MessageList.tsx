@@ -2,13 +2,12 @@ import React, { useMemo } from "react";
 import { Box, Text, useStdout } from "ink";
 import chalk from "chalk";
 import type { ChatMessage, User } from "@clichat/types";
+import { USERNAME_DISPLAY_WIDTH } from "@clichat/types";
 
 interface MessageListProps {
   messages: ChatMessage[];
   users: User[];
 }
-
-const USERNAME_COL_WIDTH = 12;
 const CHROME_ROWS = 10; // status bar + room header + input box + borders
 
 function formatTime(timestamp: number): string {
@@ -40,7 +39,7 @@ function MessageRow({ msg, colorMap }: MessageRowProps): React.ReactElement {
   }
 
   const color = colorMap.get(msg.username) ?? "#FFFFFF";
-  const coloredUsername = chalk.hex(color).bold(padRight(msg.username, USERNAME_COL_WIDTH));
+  const coloredUsername = chalk.hex(color).bold(padRight(msg.username, USERNAME_DISPLAY_WIDTH));
 
   return (
     <Box flexDirection="row" paddingX={1}>
