@@ -46,7 +46,7 @@ export function useSocket(username: string): UseSocketReturn {
     socket.on("connect", () => {
       setConnected(true);
       setSocketId(socket.id ?? "");
-      (socket as any).emit("authenticate", username);
+      socket.emit("authenticate", username);
     });
 
     socket.on("disconnect", () => {

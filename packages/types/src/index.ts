@@ -33,6 +33,7 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
+  "authenticate": (username: string) => void;
   "message:send": (roomId: string, content: string) => void;
   "room:join": (roomId: string) => void;
   "room:leave": (roomId: string) => void;

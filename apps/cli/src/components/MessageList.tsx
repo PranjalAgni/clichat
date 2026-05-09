@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Box, Text, useStdout } from "ink";
 import chalk from "chalk";
 import type { ChatMessage, User } from "@clichat/types";
@@ -7,6 +7,9 @@ interface MessageListProps {
   messages: ChatMessage[];
   users: User[];
 }
+
+const USERNAME_COL_WIDTH = 12;
+const CHROME_ROWS = 10; // status bar + room header + input box + borders
 
 function formatTime(timestamp: number): string {
   const d = new Date(timestamp);
@@ -20,34 +23,24 @@ function padRight(str: string, len: number): string {
   return str + " ".repeat(len - str.length);
 }
 
-function getUserColor(username: string, users: User[]): string {
-  const user = users.find((u) => u.username === username);
-  return user?.color ?? "#FFFFFF";
-}
-
 interface MessageRowProps {
   msg: ChatMessage;
-  users: User[];
+  colorMap: Map<string, string>;
 }
 
-function MessageRow({ msg, users }: MessageRowProps): React.ReactElement {
+function MessageRow({ msg, colorMap }: MessageRowProps): React.ReactElement {
   const timeStr = formatTime(msg.timestamp);
 
   if (msg.type === "system") {
     return (
       <Box paddingX={2}>
-        <Text color="gray" dimColor>
-          {"── "}
-          {msg.content}
-          {" ──"}
-        </Text>
+        <Text color="gray" dimColor>── {msg.content} ──</Text>
       </Box>
     );
   }
 
-  const color = getUserColor(msg.username, users);
-  const paddedUsername = padRight(msg.username, 12);
-  const coloredUsername = chalk.hex(color).bold(paddedUsername);
+  const color = colorMap.get(msg.username) ?? "#FFFFFF";
+  const coloredUsername = chalk.hex(color).bold(padRight(msg.username, USERNAME_COL_WIDTH));
 
   return (
     <Box flexDirection="row" paddingX={1}>
@@ -61,10 +54,16 @@ function MessageRow({ msg, users }: MessageRowProps): React.ReactElement {
 
 export function MessageList({ messages, users }: MessageListProps): React.ReactElement {
   const { stdout } = useStdout();
-  // Reserve rows for: status bar, room header, input box, borders
-  const reserved = 10;
-  const visibleRows = Math.max(1, (stdout?.rows ?? 24) - reserved);
+  const visibleRows = Math.max(1, (stdout?.rows ?? 24) - CHROME_ROWS);
   const visible = messages.slice(-visibleRows);
+
+  const colorMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const user of users) {
+      map.set(user.username, user.color);
+    }
+    return map;
+  }, [users]);
 
   if (messages.length === 0) {
     return (
@@ -77,7 +76,7 @@ export function MessageList({ messages, users }: MessageListProps): React.ReactE
   return (
     <Box flexDirection="column" flexGrow={1}>
       {visible.map((msg) => (
-        <MessageRow key={msg.id} msg={msg} users={users} />
+        <MessageRow key={msg.id} msg={msg} colorMap={colorMap} />
       ))}
     </Box>
   );
