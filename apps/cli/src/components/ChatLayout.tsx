@@ -6,6 +6,7 @@ import { UserList } from "./UserList.js";
 import { MessageList } from "./MessageList.js";
 import { InputBox } from "./InputBox.js";
 import { StatusBar } from "./StatusBar.js";
+import { TypingIndicator } from "./TypingIndicator.js";
 
 interface ChatLayoutProps {
   messages: ChatMessage[];
@@ -14,8 +15,12 @@ interface ChatLayoutProps {
   currentRoom: Room | null;
   connected: boolean;
   currentUserId: string;
+  currentUsername: string;
+  typingUsers: string[];
   onSendMessage: (content: string) => void;
   onJoinRoom: (roomId: string) => void;
+  onStartTyping: () => void;
+  onStopTyping: () => void;
 }
 
 const MIN_WIDTH = 80;
@@ -29,8 +34,12 @@ export function ChatLayout({
   currentRoom,
   connected,
   currentUserId,
+  currentUsername,
+  typingUsers,
   onSendMessage,
   onJoinRoom,
+  onStartTyping,
+  onStopTyping,
 }: ChatLayoutProps): React.ReactElement {
   const { stdout } = useStdout();
   const termWidth = stdout?.columns ?? 80;
@@ -50,11 +59,7 @@ export function ChatLayout({
 
   return (
     <Box flexDirection="column" width={termWidth} height={termHeight - 1}>
-      <StatusBar
-        connected={connected}
-        currentRoom={currentRoom}
-        userCount={users.length}
-      />
+      <StatusBar connected={connected} currentRoom={currentRoom} userCount={users.length} />
 
       <Box flexDirection="row" flexGrow={1}>
         <Box
@@ -65,23 +70,14 @@ export function ChatLayout({
           paddingX={1}
           flexShrink={0}
         >
-          <RoomList
-            rooms={rooms}
-            currentRoomId={currentRoom?.id ?? null}
-            onSelect={onJoinRoom}
-          />
+          <RoomList rooms={rooms} currentRoomId={currentRoom?.id ?? null} onSelect={onJoinRoom} />
           <Box height={1} />
           <Box borderStyle="single" borderColor="gray" />
           <Box height={1} />
           <UserList users={users} currentUserId={currentUserId} />
         </Box>
 
-        <Box
-          flexDirection="column"
-          flexGrow={1}
-          borderStyle="round"
-          borderColor="cyan"
-        >
+        <Box flexDirection="column" flexGrow={1} borderStyle="round" borderColor="cyan">
           <Box paddingX={2} borderStyle="single" borderColor="gray">
             <Text bold color="cyan">
               {currentRoom ? currentRoom.name : "No room selected"}
@@ -93,7 +89,7 @@ export function ChatLayout({
 
           <Box flexGrow={1} flexDirection="column" overflow="hidden">
             {currentRoom ? (
-              <MessageList messages={messages} users={users} />
+              <MessageList messages={messages} users={users} currentUsername={currentUsername} />
             ) : (
               <Box flexGrow={1} alignItems="center" justifyContent="center">
                 <Text color="gray" dimColor>
@@ -103,10 +99,15 @@ export function ChatLayout({
             )}
           </Box>
 
+          <TypingIndicator typingUsers={typingUsers} />
+
           <InputBox
             onSend={onSendMessage}
             onJoinRoom={onJoinRoom}
+            onStartTyping={onStartTyping}
+            onStopTyping={onStopTyping}
             currentRoomName={currentRoom?.name ?? "#"}
+            users={users}
           />
         </Box>
       </Box>

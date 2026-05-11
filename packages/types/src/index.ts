@@ -32,6 +32,7 @@ export interface ServerToClientEvents {
   "user:joined": (user: User) => void;
   "user:left": (userId: string) => void;
   "room:joined": (room: Room, history: ChatMessage[]) => void;
+  "typing:update": (roomId: string, usernames: string[]) => void;
   "error": (message: string) => void;
 }
 
@@ -40,4 +41,6 @@ export interface ClientToServerEvents {
   "message:send": (roomId: string, content: string) => void;
   "room:join": (roomId: string) => void;
   "room:leave": (roomId: string) => void;
+  "typing:start": (roomId: string) => void;
+  "typing:stop": (roomId: string) => void;
 }

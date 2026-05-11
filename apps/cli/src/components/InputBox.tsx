@@ -1,19 +1,60 @@
-import React, { useState } from "react";
-import { Box, Text, useApp } from "ink";
+import React, { useState, useRef } from "react";
+import { Box, Text, useApp, useInput } from "ink";
 import TextInput from "ink-text-input";
+import type { User } from "@clichat/types";
+
+const SLASH_COMMANDS = ["/join", "/quit", "/exit"];
+const HISTORY_MAX = 50;
 
 interface InputBoxProps {
   onSend: (content: string) => void;
   onJoinRoom: (roomId: string) => void;
+  onStartTyping: () => void;
+  onStopTyping: () => void;
   currentRoomName: string;
+  users: User[];
 }
 
-export function InputBox({ onSend, onJoinRoom, currentRoomName }: InputBoxProps): React.ReactElement {
+export function InputBox({
+  onSend,
+  onJoinRoom,
+  onStartTyping,
+  onStopTyping,
+  currentRoomName,
+  users,
+}: InputBoxProps): React.ReactElement {
   const [input, setInput] = useState("");
   const { exit } = useApp();
 
+  const historyRef = useRef<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const draftRef = useRef("");
+
+  const completionCandidatesRef = useRef<string[]>([]);
+  const completionIndexRef = useRef(0);
+
+  function resetCompletion(): void {
+    completionCandidatesRef.current = [];
+    completionIndexRef.current = 0;
+  }
+
+  function handleChange(value: string): void {
+    setInput(value);
+    resetCompletion();
+    if (value.length > 0) {
+      onStartTyping();
+    } else {
+      onStopTyping();
+    }
+  }
+
   function handleSubmit(value: string): void {
     const trimmed = value.trim();
+    onStopTyping();
+    resetCompletion();
+    setHistoryIndex(-1);
+    draftRef.current = "";
+
     if (!trimmed) {
       setInput("");
       return;
@@ -35,14 +76,77 @@ export function InputBox({ onSend, onJoinRoom, currentRoomName }: InputBoxProps)
         return;
       }
 
-      // Unknown command — clear silently
       setInput("");
       return;
+    }
+
+    if (historyRef.current[0] !== trimmed) {
+      historyRef.current = [trimmed, ...historyRef.current].slice(0, HISTORY_MAX);
     }
 
     onSend(trimmed);
     setInput("");
   }
+
+  useInput((_inputChar, key) => {
+    if (key.upArrow) {
+      const history = historyRef.current;
+      if (history.length === 0) return;
+      if (historyIndex === -1) draftRef.current = input;
+      const nextIndex = Math.min(historyIndex + 1, history.length - 1);
+      setHistoryIndex(nextIndex);
+      setInput(history[nextIndex] ?? "");
+      resetCompletion();
+      return;
+    }
+
+    if (key.downArrow) {
+      if (historyIndex === -1) return;
+      const nextIndex = historyIndex - 1;
+      if (nextIndex < 0) {
+        setHistoryIndex(-1);
+        setInput(draftRef.current);
+      } else {
+        setHistoryIndex(nextIndex);
+        setInput(historyRef.current[nextIndex] ?? "");
+      }
+      resetCompletion();
+      return;
+    }
+
+    if (key.tab) {
+      const wordMatch = input.match(/\S+$/);
+      const currentWord = wordMatch ? wordMatch[0] : "";
+
+      let candidates: string[] = [];
+
+      if (currentWord.startsWith("@")) {
+        const prefix = currentWord.slice(1).toLowerCase();
+        candidates = users
+          .map((u) => `@${u.username}`)
+          .filter((u) => u.slice(1).toLowerCase().startsWith(prefix));
+      } else if (currentWord.startsWith("/")) {
+        candidates = SLASH_COMMANDS.filter((c) => c.startsWith(currentWord.toLowerCase()));
+      }
+
+      if (candidates.length === 0) return;
+
+      const prevCandidates = completionCandidatesRef.current;
+      if (
+        prevCandidates.length !== candidates.length ||
+        prevCandidates.some((c, i) => c !== candidates[i])
+      ) {
+        completionCandidatesRef.current = candidates;
+        completionIndexRef.current = 0;
+      } else {
+        completionIndexRef.current = (completionIndexRef.current + 1) % candidates.length;
+      }
+
+      const chosen = candidates[completionIndexRef.current] ?? "";
+      const prefix = input.slice(0, input.length - currentWord.length);
+      setInput(prefix + chosen + " ");
+    }
+  });
 
   return (
     <Box
@@ -58,9 +162,9 @@ export function InputBox({ onSend, onJoinRoom, currentRoomName }: InputBoxProps)
       <Box flexGrow={1}>
         <TextInput
           value={input}
-          onChange={setInput}
+          onChange={handleChange}
           onSubmit={handleSubmit}
-          placeholder="Type a message... (/join <room> · /quit)"
+          placeholder="Type a message... (@user Tab · /join · /quit)"
         />
       </Box>
     </Box>

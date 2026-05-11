@@ -7,8 +7,10 @@ import { USERNAME_DISPLAY_WIDTH } from "@clichat/types";
 interface MessageListProps {
   messages: ChatMessage[];
   users: User[];
+  currentUsername: string;
 }
-const CHROME_ROWS = 10; // status bar + room header + input box + borders
+
+const CHROME_ROWS = 11;
 
 function formatTime(timestamp: number): string {
   const d = new Date(timestamp);
@@ -22,12 +24,36 @@ function padRight(str: string, len: number): string {
   return str + " ".repeat(len - str.length);
 }
 
+interface MessageContentProps {
+  content: string;
+  currentUsername: string;
+}
+
+function MessageContent({ content, currentUsername }: MessageContentProps): React.ReactElement {
+  const parts = content.split(/(@\w+)/g);
+
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (
+          part.startsWith("@") &&
+          part.slice(1).toLowerCase() === currentUsername.toLowerCase()
+        ) {
+          return <Text key={i}>{chalk.hex("#FFD700").bold(part)}</Text>;
+        }
+        return <Text key={i}>{part}</Text>;
+      })}
+    </>
+  );
+}
+
 interface MessageRowProps {
   msg: ChatMessage;
   colorMap: Map<string, string>;
+  currentUsername: string;
 }
 
-function MessageRow({ msg, colorMap }: MessageRowProps): React.ReactElement {
+function MessageRow({ msg, colorMap, currentUsername }: MessageRowProps): React.ReactElement {
   const timeStr = formatTime(msg.timestamp);
 
   if (msg.type === "system") {
@@ -46,12 +72,16 @@ function MessageRow({ msg, colorMap }: MessageRowProps): React.ReactElement {
       <Text color="gray" dimColor>[{timeStr}] </Text>
       <Text>{coloredUsername}</Text>
       <Text color="gray"> : </Text>
-      <Text wrap="wrap">{msg.content}</Text>
+      <Box flexGrow={1}>
+        <Text wrap="wrap">
+          <MessageContent content={msg.content} currentUsername={currentUsername} />
+        </Text>
+      </Box>
     </Box>
   );
 }
 
-export function MessageList({ messages, users }: MessageListProps): React.ReactElement {
+export function MessageList({ messages, users, currentUsername }: MessageListProps): React.ReactElement {
   const { stdout } = useStdout();
   const visibleRows = Math.max(1, (stdout?.rows ?? 24) - CHROME_ROWS);
   const visible = messages.slice(-visibleRows);
@@ -75,7 +105,7 @@ export function MessageList({ messages, users }: MessageListProps): React.ReactE
   return (
     <Box flexDirection="column" flexGrow={1}>
       {visible.map((msg) => (
-        <MessageRow key={msg.id} msg={msg} colorMap={colorMap} />
+        <MessageRow key={msg.id} msg={msg} colorMap={colorMap} currentUsername={currentUsername} />
       ))}
     </Box>
   );

@@ -12,9 +12,12 @@ function ChatApp({ username }: { username: string }): React.ReactElement {
     users,
     currentRoom,
     connected,
+    socketId,
+    typingUsers,
     sendMessage,
     joinRoom,
-    socketId,
+    startTyping,
+    stopTyping,
   } = useSocket(username);
 
   return (
@@ -25,8 +28,12 @@ function ChatApp({ username }: { username: string }): React.ReactElement {
       currentRoom={currentRoom}
       connected={connected}
       currentUserId={socketId}
+      currentUsername={username}
+      typingUsers={typingUsers}
       onSendMessage={sendMessage}
       onJoinRoom={joinRoom}
+      onStartTyping={startTyping}
+      onStopTyping={stopTyping}
     />
   );
 }
