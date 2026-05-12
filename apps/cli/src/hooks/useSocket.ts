@@ -9,7 +9,7 @@ import type {
 } from "@clichat/types";
 
 const SERVER_URL = process.env["SERVER_URL"] ?? "http://localhost:3001";
-const TYPING_DEBOUNCE_MS = 1000;
+const TYPING_DEBOUNCE_MS = 2500;
 
 type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 

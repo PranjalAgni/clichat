@@ -5,7 +5,7 @@ import { USERNAME_MAX_LENGTH } from "@clichat/types";
 import type { ChatMessage, Room, User, ServerToClientEvents, ClientToServerEvents } from "@clichat/types";
 
 const PORT = parseInt(process.env["PORT"] ?? "3001", 10);
-const TYPING_AUTO_CLEAR_MS = 3000;
+const TYPING_AUTO_CLEAR_MS = 4000;
 
 const USER_COLORS = [
   "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4",
