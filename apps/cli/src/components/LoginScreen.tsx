@@ -27,10 +27,25 @@ const GRADIENT_COLORS = [
 
 export function LoginScreen({ onLogin }: LoginScreenProps): React.ReactElement {
   const [value, setValue] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(submitted: string): void {
-    const trimmed = submitted.trim();
-    if (!trimmed) return;
+  function handleSubmit(val: string): void {
+    const trimmed = val.trim();
+    if (!trimmed) {
+      setError("Username cannot be empty");
+      return;
+    }
+    if (trimmed.length < 2) {
+      setError("Username must be at least 2 characters");
+      return;
+    }
+    if (!/^[\w-]+$/.test(trimmed)) {
+      setError("Only letters, numbers, _ and - allowed");
+      return;
+    }
+    setError("");
+    setSubmitted(true);
     onLogin(trimmed);
   }
 
@@ -52,31 +67,48 @@ export function LoginScreen({ onLogin }: LoginScreenProps): React.ReactElement {
 
       <Box
         borderStyle="round"
-        borderColor="cyan"
+        borderColor={error ? "red" : submitted ? "green" : "cyan"}
         paddingX={4}
         paddingY={1}
         flexDirection="column"
         alignItems="center"
-        width={50}
+        width={52}
       >
         <Box marginBottom={1}>
-          <Text bold color="cyan">
-            Welcome! Enter your username to join
+          <Text bold color={submitted ? "green" : "cyan"}>
+            {submitted ? "Connecting..." : "Choose your username"}
           </Text>
         </Box>
 
-        <Box>
-          <Text color="cyan" bold>{"> "}</Text>
-          <TextInput
-            value={value}
-            onChange={setValue}
-            onSubmit={handleSubmit}
-            placeholder="your username..."
-          />
-        </Box>
+        {!submitted && (
+          <Box>
+            <Text color="cyan" bold>{"> "}</Text>
+            <TextInput
+              value={value}
+              onChange={(v) => { setValue(v); setError(""); }}
+              onSubmit={handleSubmit}
+              placeholder="your username..."
+            />
+          </Box>
+        )}
+
+        {submitted && (
+          <Box>
+            <Text color="green">⠋ </Text>
+            <Text color="gray">Joining as </Text>
+            <Text color="cyan" bold>{value.trim()}</Text>
+            <Text color="gray">...</Text>
+          </Box>
+        )}
 
         <Box marginTop={1}>
-          <Text color="gray" dimColor>press Enter to connect</Text>
+          {error ? (
+            <Text color="red">✗ {error}</Text>
+          ) : (
+            <Text color="gray" dimColor>
+              {submitted ? "Waiting for server..." : "press Enter to connect"}
+            </Text>
+          )}
         </Box>
       </Box>
 

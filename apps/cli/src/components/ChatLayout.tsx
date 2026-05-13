@@ -59,7 +59,7 @@ export function ChatLayout({
 
   return (
     <Box flexDirection="column" width={termWidth} height={termHeight - 1}>
-      <StatusBar connected={connected} currentRoom={currentRoom} userCount={users.length} />
+      <StatusBar connected={connected} currentRoom={currentRoom} userCount={users.length} currentUsername={currentUsername} />
 
       <Box flexDirection="row" flexGrow={1}>
         <Box

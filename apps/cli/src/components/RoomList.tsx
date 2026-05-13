@@ -30,6 +30,7 @@ export function RoomList({ rooms, currentRoomId }: RoomListProps): React.ReactEl
         return (
           <Box key={room.id} flexDirection="row" alignItems="center">
             <Text color={dotColor}>{hasMention || hasUnread ? "● " : "  "}</Text>
+            <Text color="cyan">{isActive ? "▶ " : "  "}</Text>
             <Text
               bold={isActive}
               color={isActive ? "cyan" : hasUnread ? "yellow" : "white"}
@@ -38,14 +39,14 @@ export function RoomList({ rooms, currentRoomId }: RoomListProps): React.ReactEl
               {room.name}
             </Text>
             {hasUnread && !hasMention && (
-              <Text color="yellow"> ({room.unreadCount})</Text>
+              <Text color="yellow"> {room.unreadCount}</Text>
             )}
             {hasMention && <Text color="red"> @</Text>}
           </Box>
         );
       })}
       <Box marginTop={1}>
-        <Text color="gray" dimColor>/join &lt;room&gt; to switch</Text>
+        <Text color="gray" dimColor>/join &lt;room&gt;</Text>
       </Box>
     </Box>
   );

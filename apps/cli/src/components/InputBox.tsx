@@ -24,6 +24,7 @@ export function InputBox({
   users,
 }: InputBoxProps): React.ReactElement {
   const [input, setInput] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   const { exit } = useApp();
 
   const historyRef = useRef<string[]>([]);
@@ -36,6 +37,11 @@ export function InputBox({
   function resetCompletion(): void {
     completionCandidatesRef.current = [];
     completionIndexRef.current = 0;
+  }
+
+  function showError(msg: string): void {
+    setErrorMsg(msg);
+    setTimeout(() => setErrorMsg(""), 2000);
   }
 
   function handleChange(value: string): void {
@@ -76,6 +82,13 @@ export function InputBox({
         return;
       }
 
+      if (cmd === "join" && !parts[1]) {
+        showError("Usage: /join <room>");
+        setInput("");
+        return;
+      }
+
+      showError(`Unknown command: /${cmd}`);
       setInput("");
       return;
     }
@@ -148,24 +161,37 @@ export function InputBox({
     }
   });
 
+  const historyTotal = historyRef.current.length;
+  const showHistoryHint = historyIndex !== -1 && historyTotal > 0;
+
   return (
-    <Box
-      borderStyle="round"
-      borderColor="cyan"
-      paddingX={1}
-      flexDirection="row"
-      alignItems="center"
-    >
-      <Text color="cyan" bold>
-        {currentRoomName}{" > "}
-      </Text>
-      <Box flexGrow={1}>
-        <TextInput
-          value={input}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
-          placeholder="Type a message... (@user Tab · /join · /quit)"
-        />
+    <Box flexDirection="column">
+      {errorMsg ? (
+        <Box paddingX={2}>
+          <Text color="red">✗ {errorMsg}</Text>
+        </Box>
+      ) : null}
+      <Box
+        borderStyle="round"
+        borderColor={errorMsg ? "red" : "cyan"}
+        paddingX={1}
+        flexDirection="row"
+        alignItems="center"
+      >
+        <Text color="cyan" bold>
+          {currentRoomName}{" > "}
+        </Text>
+        <Box flexGrow={1}>
+          <TextInput
+            value={input}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            placeholder="Type a message... (@user Tab · /join · /quit)"
+          />
+        </Box>
+        {showHistoryHint && (
+          <Text color="gray" dimColor> ↕ {historyIndex + 1}/{historyTotal}</Text>
+        )}
       </Box>
     </Box>
   );

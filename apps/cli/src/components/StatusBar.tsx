@@ -6,9 +6,10 @@ interface StatusBarProps {
   connected: boolean;
   currentRoom: Room | null;
   userCount: number;
+  currentUsername: string;
 }
 
-export function StatusBar({ connected, currentRoom, userCount }: StatusBarProps): React.ReactElement {
+export function StatusBar({ connected, currentRoom, userCount, currentUsername }: StatusBarProps): React.ReactElement {
   return (
     <Box flexDirection="row" justifyContent="space-between" paddingX={2}>
       <Box flexDirection="row" gap={2}>
@@ -19,8 +20,9 @@ export function StatusBar({ connected, currentRoom, userCount }: StatusBarProps)
           <Text color="cyan" bold>{currentRoom.name}</Text>
         )}
       </Box>
-      <Box flexDirection="row" gap={1}>
-        <Text color="gray" dimColor>{userCount} online · clichat v0.0.1</Text>
+      <Box flexDirection="row" gap={2}>
+        <Text color="gray" dimColor>{userCount} online</Text>
+        <Text color="cyan">@{currentUsername}</Text>
       </Box>
     </Box>
   );
