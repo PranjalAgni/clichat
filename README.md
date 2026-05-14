@@ -157,4 +157,8 @@ See [`docs/design-patterns.md`](docs/design-patterns.md) for a full breakdown of
 | Variable | Default | Description |
 |---|---|---|
 | `PORT` | `3001` | Port the server listens on |
-| `SERVER_URL` | `http://localhost:3001` | Server URL the client connects to |
+| `SERVER_URL` | `http://localhost:3001
+` | Server URL the client connects to |
+
+
+200% vibe coded using claude code 
