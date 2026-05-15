@@ -162,3 +162,5 @@ See [`docs/design-patterns.md`](docs/design-patterns.md) for a full breakdown of
 
 
 200% vibe coded using claude code 
+
+Went to 90s cafe and roast ccx for icecream
